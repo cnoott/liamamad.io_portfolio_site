@@ -1,0 +1,56 @@
+---
+import { photos } from "../data/photos";
+import { siteMeta } from "../data/site";
+import "../styles/global.css";
+import "../styles/layout.css";
+import "../styles/typography.css";
+
+interface Props {
+  title?: string;
+  description?: string;
+  canonicalPath?: string;
+  ogImage?: string;
+  pageClass?: string;
+}
+
+const {
+  title = siteMeta.name,
+  description = siteMeta.description,
+  canonicalPath = Astro.url.pathname,
+  ogImage = photos[0]?.urls.main,
+  pageClass = "",
+} = Astro.props;
+
+const canonicalUrl = new URL(canonicalPath, siteMeta.siteUrl).toString();
+const imageOrigin = new URL(siteMeta.imageBaseUrl).origin;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonicalUrl} />
+    <link rel="preload" href="/fonts/Inter-Regular.otf" as="font" type="font/otf" crossorigin />
+    <link rel="preload" href="/fonts/Inter-Medium.otf" as="font" type="font/otf" crossorigin />
+    <link rel="preload" href="/fonts/Inter-Bold.otf" as="font" type="font/otf" crossorigin />
+    <link rel="preconnect" href={imageOrigin} crossorigin />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+    <link rel="icon" type="image/png" sizes="64x64" href="/assets/favicons/favicon.png" />
+    <meta property="og:site_name" content={siteMeta.name} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonicalUrl} />
+    {ogImage && <meta property="og:image" content={ogImage} />}
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    {ogImage && <meta name="twitter:image" content={ogImage} />}
+  </head>
+  <body class:list={["site-body", pageClass]}>
+    <slot />
+  </body>
+</html>

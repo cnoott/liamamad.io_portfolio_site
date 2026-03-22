@@ -1,0 +1,60 @@
+---
+import MobileHeader from "../components/MobileHeader.astro";
+import PhotoImage from "../components/PhotoImage.astro";
+import PhotoViewer from "../components/PhotoViewer.astro";
+import Sidebar from "../components/Sidebar.astro";
+import { getPhotoPath, photos } from "../data/photos";
+import { siteMeta } from "../data/site";
+import BaseLayout from "../layouts/BaseLayout.astro";
+
+const firstPhoto = photos[0];
+---
+
+<BaseLayout pageClass="viewer-page" ogImage={firstPhoto?.urls.main}>
+  <MobileHeader currentPath="/" />
+  <div class="desktop-frame">
+    <Sidebar activePage="home" />
+
+    <main class="page-shell page-shell--viewer">
+      {firstPhoto ? (
+        <>
+          <PhotoViewer
+            photo={firstPhoto}
+            currentIndex={1}
+            total={photos.length}
+            nextPhoto={photos[1]}
+            variant="main"
+            gridHref="/grid"
+          />
+
+          <section class="mobile-feed mobile-only" aria-label="Photography feed">
+            {photos.map((photo, index) => (
+              <article class="mobile-feed__item">
+                <PhotoImage
+                  photo={photo}
+                  variant="main"
+                  href={getPhotoPath(photo.slug)}
+                  loading={index === 0 ? "eager" : "lazy"}
+                  priority={index === 0}
+                  sizes="100vw"
+                  imageClass="mobile-feed__image"
+                  linkClass="mobile-feed__link"
+                />
+                {[photo.year, photo.location].filter(Boolean).length > 0 && (
+                  <div class="mobile-feed__meta">{[photo.year, photo.location].filter(Boolean).join(" / ")}</div>
+                )}
+              </article>
+            ))}
+          </section>
+        </>
+      ) : (
+        <section class="empty-state">
+          <h1 class="empty-state__title">{siteMeta.name}</h1>
+          <p class="empty-state__copy">
+            Add photo metadata in <code>src/data/photos.ts</code> to populate the viewer and canonical photo routes.
+          </p>
+        </section>
+      )}
+    </main>
+  </div>
+</BaseLayout>

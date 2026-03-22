@@ -1,0 +1,89 @@
+---
+import { getPhotoPath, type Photo } from "../data/photos";
+import PhotoImage from "./PhotoImage.astro";
+import PrevNextNav from "./PrevNextNav.astro";
+
+interface Props {
+  photo: Photo;
+  currentIndex: number;
+  total: number;
+  prevPhoto?: Photo;
+  nextPhoto?: Photo;
+  variant?: "main" | "large";
+  canonical?: boolean;
+  gridHref?: string;
+}
+
+const {
+  photo,
+  currentIndex,
+  total,
+  prevPhoto,
+  nextPhoto,
+  variant = "main",
+  canonical = false,
+  gridHref = "/grid",
+} = Astro.props;
+
+const imageHref = canonical ? undefined : getPhotoPath(photo.slug);
+---
+
+<section
+  class="viewer-shell desktop-only"
+  data-viewer-nav
+  data-prev-url={prevPhoto ? getPhotoPath(prevPhoto.slug) : ""}
+  data-next-url={nextPhoto ? getPhotoPath(nextPhoto.slug) : ""}
+>
+  <div class="viewer-shell__stage">
+    <div class="viewer-shell__image-frame">
+      <PhotoImage
+        photo={photo}
+        variant={variant}
+        href={imageHref}
+        loading="eager"
+        priority={true}
+        sizes="(min-width: 901px) calc(100vw - 320px), 100vw"
+        imageClass="viewer-shell__image"
+        linkClass="viewer-shell__image-link"
+      />
+    </div>
+  </div>
+
+  <div class="viewer-shell__footer">
+    <div class="viewer-shell__footer-main">
+      <PrevNextNav currentIndex={currentIndex} total={total} prevPhoto={prevPhoto} nextPhoto={nextPhoto} />
+    </div>
+    <a class="viewer-shell__grid-toggle" href={gridHref} aria-label="Open grid view">
+      <span></span><span></span><span></span><span></span>
+    </a>
+  </div>
+</section>
+
+<script is:inline>
+  const viewer = document.querySelector("[data-viewer-nav]");
+  const desktopQuery = window.matchMedia("(min-width: 901px)");
+
+  if (viewer instanceof HTMLElement && desktopQuery.matches) {
+    const prevUrl = viewer.dataset.prevUrl;
+    const nextUrl = viewer.dataset.nextUrl;
+
+    document.addEventListener("keydown", (event) => {
+      const target = event.target;
+      const isTypingTarget =
+        target instanceof HTMLElement &&
+        (target.isContentEditable || ["INPUT", "TEXTAREA", "SELECT"].includes(target.tagName));
+
+      if (isTypingTarget || event.metaKey || event.ctrlKey || event.altKey || event.shiftKey) {
+        return;
+      }
+
+      if (event.key === "ArrowLeft" && prevUrl) {
+        window.location.assign(prevUrl);
+      }
+
+      if (event.key === "ArrowRight" && nextUrl) {
+        window.location.assign(nextUrl);
+      }
+    });
+  }
+</script>

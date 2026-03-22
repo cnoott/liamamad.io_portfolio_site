@@ -1,0 +1,68 @@
+---
+import MobileHeader from "../../components/MobileHeader.astro";
+import PhotoImage from "../../components/PhotoImage.astro";
+import PhotoMeta from "../../components/PhotoMeta.astro";
+import PhotoViewer from "../../components/PhotoViewer.astro";
+import PrevNextNav from "../../components/PrevNextNav.astro";
+import Sidebar from "../../components/Sidebar.astro";
+import {
+  getNextPhoto,
+  getPhotoIndex,
+  getPrevPhoto,
+  getPhotoPath,
+  photos,
+  type Photo,
+} from "../../data/photos";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+
+export function getStaticPaths() {
+  return photos.map((photo) => ({
+    params: { slug: photo.slug },
+    props: { photo },
+  }));
+}
+
+const { photo } = Astro.props as { photo: Photo };
+const currentIndex = getPhotoIndex(photo.slug) + 1;
+const prevPhoto = getPrevPhoto(photo.slug);
+const nextPhoto = getNextPhoto(photo.slug);
+---
+
+<BaseLayout
+  title={`${photo.title} | liamamad.io`}
+  description={photo.alt}
+  canonicalPath={getPhotoPath(photo.slug)}
+  ogImage={photo.urls.main}
+  pageClass="viewer-page"
+>
+  <MobileHeader currentPath={getPhotoPath(photo.slug)} />
+  <div class="desktop-frame">
+    <Sidebar />
+
+    <main class="page-shell page-shell--viewer">
+      <PhotoViewer
+        photo={photo}
+        currentIndex={currentIndex}
+        total={photos.length}
+        prevPhoto={prevPhoto}
+        nextPhoto={nextPhoto}
+        variant="large"
+        canonical={true}
+        gridHref="/grid"
+      />
+
+      <article class="mobile-photo-page mobile-only">
+        <PhotoImage
+          photo={photo}
+          variant="large"
+          loading="eager"
+          priority={true}
+          sizes="100vw"
+          imageClass="mobile-photo-page__image"
+        />
+        <PhotoMeta photo={photo} />
+        <PrevNextNav currentIndex={currentIndex} total={photos.length} prevPhoto={prevPhoto} nextPhoto={nextPhoto} />
+      </article>
+    </main>
+  </div>
+</BaseLayout>

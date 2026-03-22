@@ -1,0 +1,24 @@
+---
+interface Props {
+  activePage?: "home" | "about";
+}
+
+const { activePage } = Astro.props;
+---
+
+<aside class="sidebar desktop-only">
+  <div class="sidebar__inner">
+    <div class="sidebar__top">
+      <a class="sidebar__brand" href="/">liamamad.io</a>
+
+      <nav class="sidebar__nav" aria-label="Primary">
+        <a class="sidebar__link" href="/" aria-current={activePage === "home" ? "page" : undefined}>
+          Home
+        </a>
+        <a class="sidebar__link" href="/about" aria-current={activePage === "about" ? "page" : undefined}>
+          About
+        </a>
+      </nav>
+    </div>
+  </div>
+</aside>

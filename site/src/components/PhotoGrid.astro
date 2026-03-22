@@ -1,0 +1,26 @@
+---
+import { getPhotoPath, type Photo } from "../data/photos";
+import PhotoImage from "./PhotoImage.astro";
+
+interface Props {
+  photos: Photo[];
+}
+
+const { photos } = Astro.props;
+---
+
+<section class="photo-grid" aria-label="Photo grid">
+  {photos.map((photo, index) => (
+    <article class="photo-grid__item">
+      <PhotoImage
+        photo={photo}
+        variant="thumb"
+        href={getPhotoPath(photo.slug)}
+        loading={index < 4 ? "eager" : "lazy"}
+        sizes="(min-width: 901px) calc((100vw - 320px) / 2), 100vw"
+        imageClass="photo-grid__image"
+        linkClass="photo-grid__link"
+      />
+    </article>
+  ))}
+</section>

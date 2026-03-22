@@ -1,0 +1,8 @@
+site/node_modules
+site/dist
+site/.astro
+uploader/node_modules
+uploader/dist
+.DS_Store
+.env
+*.log

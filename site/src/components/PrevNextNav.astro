@@ -1,0 +1,39 @@
+---
+import { getPhotoPath, type Photo } from "../data/photos";
+
+interface Props {
+  prevPhoto?: Photo;
+  nextPhoto?: Photo;
+  currentIndex: number;
+  total: number;
+}
+
+const { prevPhoto, nextPhoto, currentIndex, total } = Astro.props;
+const formatIndex = (value: number) => value.toString().padStart(2, "0");
+---
+
+<nav class="prev-next-nav" aria-label="Photo navigation">
+  {prevPhoto ? (
+    <a class="prev-next-nav__arrow" href={getPhotoPath(prevPhoto.slug)} rel="prev" aria-label="Previous photo">
+      &#8249;
+    </a>
+  ) : (
+    <span class="prev-next-nav__arrow prev-next-nav__arrow--muted" aria-hidden="true">
+      &#8249;
+    </span>
+  )}
+
+  {nextPhoto ? (
+    <a class="prev-next-nav__arrow" href={getPhotoPath(nextPhoto.slug)} rel="next" aria-label="Next photo">
+      &#8250;
+    </a>
+  ) : (
+    <span class="prev-next-nav__arrow prev-next-nav__arrow--muted" aria-hidden="true">
+      &#8250;
+    </span>
+  )}
+
+  <span class="prev-next-nav__count">
+    {formatIndex(currentIndex)} / {formatIndex(total)}
+  </span>
+</nav>

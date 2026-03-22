@@ -1,0 +1,17 @@
+---
+interface Props {
+  currentPath: string;
+}
+
+const { currentPath } = Astro.props;
+const isHome = currentPath === "/";
+const isAbout = currentPath === "/about";
+---
+
+<div class="menu-overlay" data-menu-overlay>
+  <nav class="menu-overlay__panel" aria-label="Mobile navigation">
+    <a class="menu-overlay__link" href="/" aria-current={isHome ? "page" : undefined}>Home</a>
+    <a class="menu-overlay__link" href="/about" aria-current={isAbout ? "page" : undefined}>About</a>
+    <button class="menu-overlay__close" type="button" data-menu-close>close</button>
+  </nav>
+</div>

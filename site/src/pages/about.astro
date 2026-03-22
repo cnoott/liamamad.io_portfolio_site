@@ -1,0 +1,46 @@
+---
+import MobileHeader from "../components/MobileHeader.astro";
+import Sidebar from "../components/Sidebar.astro";
+import { siteMeta } from "../data/site";
+import BaseLayout from "../layouts/BaseLayout.astro";
+---
+
+<BaseLayout
+  title={`About | ${siteMeta.name}`}
+  description="About Liam Amad and the editorial structure behind the portfolio."
+  canonicalPath="/about"
+>
+  <MobileHeader currentPath="/about" />
+  <div class="desktop-frame">
+    <Sidebar activePage="about" />
+
+    <main class="page-shell">
+      <section class="about-page">
+        <div class="about-page__content">
+          <p class="about-page__eyebrow">About</p>
+          <h1 class="about-page__title">Liam Amad</h1>
+          {siteMeta.about.map((paragraph) => (
+            <p>{paragraph}</p>
+          ))}
+
+          <div class="about-page__details">
+            <p>
+              <span>Location</span>
+              <strong>{siteMeta.location}</strong>
+            </p>
+            <p>
+              <span>Email</span>
+              <a href={`mailto:${siteMeta.email}`}>{siteMeta.email}</a>
+            </p>
+            <p>
+              <span>Instagram</span>
+              <a href={siteMeta.instagramUrl} rel="noreferrer" target="_blank">
+                @liamamad
+              </a>
+            </p>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+</BaseLayout>

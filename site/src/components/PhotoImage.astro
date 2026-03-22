@@ -1,0 +1,53 @@
+---
+import type { Photo } from "../data/photos";
+
+type Variant = "thumb" | "main" | "large";
+
+interface Props {
+  photo: Photo;
+  variant: Variant;
+  href?: string;
+  loading?: "eager" | "lazy";
+  sizes?: string;
+  priority?: boolean;
+  imageClass?: string;
+  linkClass?: string;
+}
+
+const {
+  photo,
+  variant,
+  href,
+  loading = "lazy",
+  sizes: _sizes = "100vw",
+  priority = false,
+  imageClass = "",
+  linkClass = "",
+} = Astro.props;
+---
+
+{href ? (
+  <a class:list={["photo-image__link", linkClass]} href={href} aria-label={`View ${photo.title}`}>
+    <img
+      class:list={["photo-image", imageClass]}
+      src={photo.urls[variant]}
+      alt={photo.alt}
+      width={photo.width}
+      height={photo.height}
+      loading={loading}
+      decoding="async"
+      fetchpriority={priority ? "high" : "auto"}
+    />
+  </a>
+) : (
+  <img
+    class:list={["photo-image", imageClass]}
+    src={photo.urls[variant]}
+    alt={photo.alt}
+    width={photo.width}
+    height={photo.height}
+    loading={loading}
+    decoding="async"
+    fetchpriority={priority ? "high" : "auto"}
+  />
+)}

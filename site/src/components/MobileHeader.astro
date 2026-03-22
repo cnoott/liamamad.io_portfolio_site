@@ -1,0 +1,51 @@
+---
+import MenuOverlay from "./MenuOverlay.astro";
+
+interface Props {
+  currentPath: string;
+}
+
+const { currentPath } = Astro.props;
+---
+
+<header class="mobile-header mobile-only">
+  <a class="mobile-header__brand" href="/">liamamad.io</a>
+  <details class="mobile-menu" data-mobile-menu>
+    <summary class="mobile-menu__summary">menu</summary>
+    <MenuOverlay currentPath={currentPath} />
+  </details>
+</header>
+
+<script is:inline>
+  const menu = document.querySelector("[data-mobile-menu]");
+  if (menu instanceof HTMLDetailsElement) {
+    const closeMenu = () => {
+      menu.open = false;
+      document.body.classList.remove("menu-open");
+    };
+
+    const syncBodyLock = () => {
+      document.body.classList.toggle("menu-open", menu.open);
+    };
+
+    menu.addEventListener("toggle", syncBodyLock);
+
+    menu.querySelectorAll("a").forEach((link) => {
+      link.addEventListener("click", closeMenu);
+    });
+
+    menu.querySelector("[data-menu-close]")?.addEventListener("click", closeMenu);
+
+    menu.querySelector("[data-menu-overlay]")?.addEventListener("click", (event) => {
+      if (event.target instanceof HTMLElement && event.target.hasAttribute("data-menu-overlay")) {
+        closeMenu();
+      }
+    });
+
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape" && menu.open) {
+        closeMenu();
+      }
+    });
+  }
+</script>

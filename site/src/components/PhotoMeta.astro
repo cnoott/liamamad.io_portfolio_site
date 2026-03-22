@@ -1,0 +1,17 @@
+---
+import type { Photo } from "../data/photos";
+
+interface Props {
+  photo: Photo;
+}
+
+const { photo } = Astro.props;
+const detailParts = [photo.year, photo.location].filter(Boolean);
+---
+
+{(detailParts.length > 0 || (photo.caption && photo.caption.trim())) && (
+  <div class="photo-meta">
+    {detailParts.length > 0 && <p class="photo-meta__details">{detailParts.join(" / ")}</p>}
+    {photo.caption && photo.caption.trim() && <p class="photo-meta__caption">{photo.caption}</p>}
+  </div>
+)}
