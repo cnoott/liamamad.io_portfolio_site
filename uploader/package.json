@@ -6,7 +6,8 @@
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "typecheck": "tsc --noEmit -p tsconfig.json",
-    "photo-upload": "tsx src/index.ts"
+    "photo-upload": "tsx src/index.ts",
+    "photo-upload-dir": "tsx src/upload-dir.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.862.0",
