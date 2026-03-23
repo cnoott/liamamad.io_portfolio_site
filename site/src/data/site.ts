@@ -5,7 +5,7 @@ export const siteMeta = {
   description:
     "Liam Amadio's Photography",
   location: "Brooklyn, NY",
-  email: "hello@liamamad.io",
+  email: "liamamadio at gmail dot com",
   instagramUrl: "https://instagram.com/liamadio",
   about: [
     "My name is Liam Amadio and I make photographs in New York City and occasionally elsewhere.",

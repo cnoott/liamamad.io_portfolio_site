@@ -25,7 +25,6 @@ const rawPhotos: Photo[] = [
     slug: "000193360037",
     title: "000193360037",
     alt: "",
-    year: 2026,
     caption: "",
     order: 1,
     width: 3130,

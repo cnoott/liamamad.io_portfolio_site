@@ -18,7 +18,6 @@ import BaseLayout from "../layouts/BaseLayout.astro";
       <section class="about-page">
         <div class="about-page__content">
           <p class="about-page__eyebrow">About</p>
-          <h1 class="about-page__title">Liam Amad</h1>
           {siteMeta.about.map((paragraph) => (
             <p>{paragraph}</p>
           ))}
@@ -30,12 +29,12 @@ import BaseLayout from "../layouts/BaseLayout.astro";
             </p>
             <p>
               <span>Email</span>
-              <a href={`mailto:${siteMeta.email}`}>{siteMeta.email}</a>
+              <a>{siteMeta.email}</a>
             </p>
             <p>
               <span>Instagram</span>
               <a href={siteMeta.instagramUrl} rel="noreferrer" target="_blank">
-                @liamamad
+                liamadio
               </a>
             </p>
           </div>
