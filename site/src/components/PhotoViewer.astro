@@ -31,6 +31,10 @@ const imageHref = canonical ? undefined : getPhotoPath(photo.slug);
 <section
   class="viewer-shell desktop-only"
   data-viewer-nav
+  data-photo-fullscreen={canonical ? "true" : undefined}
+  data-image-main={photo.urls.main}
+  data-image-large={photo.urls.large}
+  data-image-alt={photo.alt}
   data-prev-url={prevPhoto ? getPhotoPath(prevPhoto.slug) : ""}
   data-next-url={nextPhoto ? getPhotoPath(nextPhoto.slug) : ""}
 >
@@ -74,6 +78,10 @@ const imageHref = canonical ? undefined : getPhotoPath(photo.slug);
         (target.isContentEditable || ["INPUT", "TEXTAREA", "SELECT"].includes(target.tagName));
 
       if (isTypingTarget || event.metaKey || event.ctrlKey || event.altKey || event.shiftKey) {
+        return;
+      }
+
+      if (document.body.classList.contains("photo-fullscreen-open")) {
         return;
       }
 

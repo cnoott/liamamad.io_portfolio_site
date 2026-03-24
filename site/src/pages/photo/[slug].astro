@@ -26,6 +26,9 @@ const { photo } = Astro.props as { photo: Photo };
 const currentIndex = getPhotoIndex(photo.slug) + 1;
 const prevPhoto = getPrevPhoto(photo.slug);
 const nextPhoto = getNextPhoto(photo.slug);
+const adjacentPhotos = [prevPhoto, nextPhoto].filter((entry): entry is Photo => Boolean(entry));
+const prefetchPages = Array.from(new Set(adjacentPhotos.map((entry) => getPhotoPath(entry.slug))));
+const prefetchImages = Array.from(new Set(adjacentPhotos.map((entry) => entry.urls.main)));
 ---
 
 <BaseLayout
@@ -34,6 +37,8 @@ const nextPhoto = getNextPhoto(photo.slug);
   canonicalPath={getPhotoPath(photo.slug)}
   ogImage={photo.urls.main}
   pageClass="viewer-page"
+  prefetchPages={prefetchPages}
+  prefetchImages={prefetchImages}
 >
   <MobileHeader currentPath={getPhotoPath(photo.slug)} />
   <div class="desktop-frame">
@@ -51,18 +56,264 @@ const nextPhoto = getNextPhoto(photo.slug);
         gridHref="/grid"
       />
 
-      <article class="mobile-photo-page mobile-only">
-        <PhotoImage
-          photo={photo}
-          variant="large"
-          loading="eager"
-          priority={true}
-          sizes="100vw"
-          imageClass="mobile-photo-page__image"
-        />
+      <article
+        class="mobile-photo-page mobile-only"
+        data-mobile-swipe
+        data-photo-fullscreen="true"
+        data-image-main={photo.urls.main}
+        data-image-large={photo.urls.large}
+        data-image-alt={photo.alt}
+        data-prev-url={prevPhoto ? getPhotoPath(prevPhoto.slug) : ""}
+        data-next-url={nextPhoto ? getPhotoPath(nextPhoto.slug) : ""}
+      >
+        <div class="mobile-photo-page__stage">
+          {prevPhoto ? (
+            <a class="mobile-photo-page__arrow mobile-photo-page__arrow--prev" href={getPhotoPath(prevPhoto.slug)} aria-label="Previous photo">
+              &#8249;
+            </a>
+          ) : (
+            <span class="mobile-photo-page__arrow mobile-photo-page__arrow--prev mobile-photo-page__arrow--muted" aria-hidden="true">
+              &#8249;
+            </span>
+          )}
+
+          <PhotoImage
+            photo={photo}
+            variant="large"
+            loading="eager"
+            priority={true}
+            sizes="100vw"
+            imageClass="mobile-photo-page__image"
+          />
+
+          {nextPhoto ? (
+            <a class="mobile-photo-page__arrow mobile-photo-page__arrow--next" href={getPhotoPath(nextPhoto.slug)} aria-label="Next photo">
+              &#8250;
+            </a>
+          ) : (
+            <span class="mobile-photo-page__arrow mobile-photo-page__arrow--next mobile-photo-page__arrow--muted" aria-hidden="true">
+              &#8250;
+            </span>
+          )}
+        </div>
+
         <PhotoMeta photo={photo} />
         <PrevNextNav currentIndex={currentIndex} total={photos.length} prevPhoto={prevPhoto} nextPhoto={nextPhoto} />
       </article>
     </main>
   </div>
 </BaseLayout>
+
+<script is:inline>
+  const FULLSCREEN_QUERY_VALUE = "1";
+  const fullscreenRoots = Array.from(document.querySelectorAll("[data-photo-fullscreen]"));
+  let overlay = document.querySelector("[data-fullscreen-overlay]");
+
+  if (!(overlay instanceof HTMLElement)) {
+    overlay = document.createElement("div");
+    overlay.setAttribute("data-fullscreen-overlay", "true");
+    overlay.className = "photo-fullscreen";
+    overlay.innerHTML = `
+      <button type="button" class="photo-fullscreen__stage" data-fullscreen-close aria-label="Close fullscreen">
+        <img class="photo-fullscreen__image" data-fullscreen-image alt="" />
+      </button>
+      <button type="button" class="photo-fullscreen__zone photo-fullscreen__zone--prev" data-fullscreen-prev aria-label="Previous photo"></button>
+      <button type="button" class="photo-fullscreen__zone photo-fullscreen__zone--next" data-fullscreen-next aria-label="Next photo"></button>
+    `;
+    document.body.appendChild(overlay);
+  }
+
+  const fullscreenImage = overlay.querySelector("[data-fullscreen-image]");
+  const prevZone = overlay.querySelector("[data-fullscreen-prev]");
+  const nextZone = overlay.querySelector("[data-fullscreen-next]");
+  const closeZone = overlay.querySelector("[data-fullscreen-close]");
+  let fullscreenPrevUrl = "";
+  let fullscreenNextUrl = "";
+  let fullscreenStartX = 0;
+  let fullscreenStartY = 0;
+  const withFullscreenQuery = (url) => {
+    if (!url) {
+      return "";
+    }
+
+    const nextUrl = new URL(url, window.location.origin);
+    nextUrl.searchParams.set("fullscreen", FULLSCREEN_QUERY_VALUE);
+    return `${nextUrl.pathname}${nextUrl.search}${nextUrl.hash}`;
+  };
+
+  const clearFullscreenQuery = () => {
+    const nextUrl = new URL(window.location.href);
+    nextUrl.searchParams.delete("fullscreen");
+    window.history.replaceState({}, "", `${nextUrl.pathname}${nextUrl.search}${nextUrl.hash}`);
+  };
+
+  const applyFullscreenQuery = () => {
+    const nextUrl = new URL(window.location.href);
+    nextUrl.searchParams.set("fullscreen", FULLSCREEN_QUERY_VALUE);
+    window.history.replaceState({}, "", `${nextUrl.pathname}${nextUrl.search}${nextUrl.hash}`);
+  };
+
+  const navigateFullscreen = (url) => {
+    const nextUrl = withFullscreenQuery(url);
+
+    if (nextUrl) {
+      window.location.assign(nextUrl);
+    }
+  };
+
+  const closeFullscreen = () => {
+    overlay.classList.remove("is-open");
+    document.body.classList.remove("photo-fullscreen-open");
+    clearFullscreenQuery();
+  };
+
+  const openFullscreen = (root) => {
+    if (!(root instanceof HTMLElement) || !(fullscreenImage instanceof HTMLImageElement)) {
+      return;
+    }
+
+    const mainUrl = root.dataset.imageMain;
+    const largeUrl = root.dataset.imageLarge || mainUrl;
+
+    if (!mainUrl) {
+      return;
+    }
+
+    fullscreenPrevUrl = root.dataset.prevUrl || "";
+    fullscreenNextUrl = root.dataset.nextUrl || "";
+    fullscreenImage.src = mainUrl;
+    fullscreenImage.srcset = largeUrl ? `${mainUrl} 2048w, ${largeUrl} 3200w` : mainUrl;
+    fullscreenImage.sizes = "100vw";
+    fullscreenImage.alt = root.dataset.imageAlt || "";
+    overlay.classList.add("is-open");
+    document.body.classList.add("photo-fullscreen-open");
+    applyFullscreenQuery();
+  };
+
+  fullscreenRoots.forEach((root) => {
+    const image = root.querySelector("img");
+
+    image?.addEventListener("click", (event) => {
+      event.preventDefault();
+      openFullscreen(root);
+    });
+  });
+
+  const swipeRoot = document.querySelector("[data-mobile-swipe]");
+
+  if (swipeRoot instanceof HTMLElement && window.matchMedia("(max-width: 900px)").matches) {
+    let startX = 0;
+    let startY = 0;
+
+    swipeRoot.addEventListener(
+      "touchstart",
+      (event) => {
+        const touch = event.changedTouches[0];
+        startX = touch.clientX;
+        startY = touch.clientY;
+      },
+      { passive: true },
+    );
+
+    swipeRoot.addEventListener(
+      "touchend",
+      (event) => {
+        const touch = event.changedTouches[0];
+        const deltaX = touch.clientX - startX;
+        const deltaY = touch.clientY - startY;
+        const prevUrl = swipeRoot.dataset.prevUrl;
+        const nextUrl = swipeRoot.dataset.nextUrl;
+
+        if (Math.abs(deltaX) < 45 || Math.abs(deltaX) < Math.abs(deltaY) * 1.2) {
+          return;
+        }
+
+        if (deltaX > 0 && prevUrl) {
+          window.location.assign(prevUrl);
+        }
+
+        if (deltaX < 0 && nextUrl) {
+          window.location.assign(nextUrl);
+        }
+      },
+      { passive: true },
+    );
+  }
+
+  prevZone?.addEventListener("click", () => {
+    if (fullscreenPrevUrl) {
+      navigateFullscreen(fullscreenPrevUrl);
+    }
+  });
+
+  nextZone?.addEventListener("click", () => {
+    if (fullscreenNextUrl) {
+      navigateFullscreen(fullscreenNextUrl);
+    }
+  });
+
+  closeZone?.addEventListener("click", closeFullscreen);
+
+  overlay.addEventListener(
+    "touchstart",
+    (event) => {
+      const touch = event.changedTouches[0];
+      fullscreenStartX = touch.clientX;
+      fullscreenStartY = touch.clientY;
+    },
+    { passive: true },
+  );
+
+  overlay.addEventListener(
+    "touchend",
+    (event) => {
+      if (!overlay.classList.contains("is-open")) {
+        return;
+      }
+
+      const touch = event.changedTouches[0];
+      const deltaX = touch.clientX - fullscreenStartX;
+      const deltaY = touch.clientY - fullscreenStartY;
+
+      if (Math.abs(deltaX) < 45 || Math.abs(deltaX) < Math.abs(deltaY) * 1.2) {
+        return;
+      }
+
+      if (deltaX > 0 && fullscreenPrevUrl) {
+        navigateFullscreen(fullscreenPrevUrl);
+      }
+
+      if (deltaX < 0 && fullscreenNextUrl) {
+        navigateFullscreen(fullscreenNextUrl);
+      }
+    },
+    { passive: true },
+  );
+
+  document.addEventListener("keydown", (event) => {
+    if (!overlay.classList.contains("is-open")) {
+      return;
+    }
+
+    if (event.key === "Escape") {
+      closeFullscreen();
+      return;
+    }
+
+    if (event.key === "ArrowLeft" && fullscreenPrevUrl) {
+      navigateFullscreen(fullscreenPrevUrl);
+    }
+
+    if (event.key === "ArrowRight" && fullscreenNextUrl) {
+      navigateFullscreen(fullscreenNextUrl);
+    }
+  });
+
+  if (new URL(window.location.href).searchParams.get("fullscreen") === FULLSCREEN_QUERY_VALUE) {
+    const initialRoot = fullscreenRoots[0];
+
+    if (initialRoot) {
+      openFullscreen(initialRoot);
+    }
+  }
+</script>

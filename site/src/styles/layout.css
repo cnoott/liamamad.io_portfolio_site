@@ -7,7 +7,7 @@
   .desktop-frame {
     position: relative;
     min-height: 100vh;
-    width: min(calc(100vw - 7rem), 900px);
+    width: min(calc(100vw - 7rem), 990px);
     margin: 0 auto;
   }
 
@@ -164,7 +164,7 @@
 
 .viewer-shell__image {
   max-width: 100%;
-  max-height: min(64vh, calc(100vh - 12.5rem));
+  max-height: min(64vh, calc(100vh - 11.5rem));
   width: auto;
   object-fit: contain;
 }
@@ -253,6 +253,96 @@
   display: grid;
   gap: 1rem;
   padding: 1rem 1rem 3rem;
+}
+
+.mobile-photo-page__stage {
+  position: relative;
+  touch-action: pan-y;
+}
+
+.mobile-photo-page__arrow {
+  position: absolute;
+  top: 50%;
+  z-index: 2;
+  display: flex;
+  width: 2.5rem;
+  height: 2.5rem;
+  align-items: center;
+  justify-content: center;
+  transform: translateY(-50%);
+  color: var(--color-text);
+  line-height: 1;
+}
+
+.mobile-photo-page__arrow--prev {
+  left: 0;
+}
+
+.mobile-photo-page__arrow--next {
+  right: 0;
+}
+
+.mobile-photo-page__arrow--muted {
+  color: var(--color-muted);
+}
+
+.photo-fullscreen {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: none;
+  background: #050505;
+}
+
+.photo-fullscreen.is-open {
+  display: block;
+}
+
+.photo-fullscreen__stage,
+.photo-fullscreen__zone {
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: inherit;
+}
+
+.photo-fullscreen__stage {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  width: 100dvw;
+  height: 100dvh;
+  align-items: center;
+  justify-content: center;
+}
+
+.photo-fullscreen__zone {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  z-index: 2;
+  width: 22vw;
+  min-width: 3.5rem;
+}
+
+.photo-fullscreen__zone--prev {
+  left: 0;
+}
+
+.photo-fullscreen__zone--next {
+  right: 0;
+}
+
+.photo-fullscreen__image {
+  width: 100dvw;
+  height: 100dvh;
+  object-fit: contain;
+}
+
+@media (max-width: 900px) {
+  .photo-fullscreen__zone {
+    width: 18vw;
+  }
 }
 
 .grid-page {

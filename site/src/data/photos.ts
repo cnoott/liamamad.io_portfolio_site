@@ -219,10 +219,20 @@ export function getPhotoIndex(slug: string) {
 
 export function getPrevPhoto(slug: string) {
   const index = getPhotoIndex(slug);
-  return index > 0 ? photos[index - 1] : undefined;
+
+  if (index === -1 || photos.length === 0) {
+    return undefined;
+  }
+
+  return photos[(index - 1 + photos.length) % photos.length];
 }
 
 export function getNextPhoto(slug: string) {
   const index = getPhotoIndex(slug);
-  return index >= 0 && index < photos.length - 1 ? photos[index + 1] : undefined;
+
+  if (index === -1 || photos.length === 0) {
+    return undefined;
+  }
+
+  return photos[(index + 1) % photos.length];
 }

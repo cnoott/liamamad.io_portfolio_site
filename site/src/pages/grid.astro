@@ -18,3 +18,20 @@ import BaseLayout from "../layouts/BaseLayout.astro";
     </main>
   </div>
 </BaseLayout>
+
+<script is:inline>
+  document.addEventListener("keydown", (event) => {
+    if (event.key !== "Escape") {
+      return;
+    }
+
+    const referrer = document.referrer;
+
+    if (referrer && referrer.startsWith(window.location.origin) && !referrer.includes("/grid")) {
+      window.location.assign(referrer);
+      return;
+    }
+
+    window.location.assign("/");
+  });
+</script>

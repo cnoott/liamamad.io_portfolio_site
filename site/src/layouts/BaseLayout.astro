@@ -11,6 +11,8 @@ interface Props {
   canonicalPath?: string;
   ogImage?: string;
   pageClass?: string;
+  prefetchPages?: string[];
+  prefetchImages?: string[];
 }
 
 const {
@@ -19,6 +21,8 @@ const {
   canonicalPath = Astro.url.pathname,
   ogImage = photos[0]?.urls.main,
   pageClass = "",
+  prefetchPages = [],
+  prefetchImages = [],
 } = Astro.props;
 
 const canonicalUrl = new URL(canonicalPath, siteMeta.siteUrl).toString();
@@ -39,6 +43,8 @@ const imageOrigin = new URL(siteMeta.imageBaseUrl).origin;
     <link rel="preconnect" href={imageOrigin} crossorigin />
     <link rel="sitemap" href="/sitemap-index.xml" />
     <link rel="icon" type="image/png" sizes="64x64" href="/assets/favicons/favicon.png" />
+    {prefetchPages.map((href) => <link rel="prefetch" href={href} />)}
+    {prefetchImages.map((href) => <link rel="prefetch" as="image" href={href} />)}
     <meta property="og:site_name" content={siteMeta.name} />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />

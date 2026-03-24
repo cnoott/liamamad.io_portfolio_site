@@ -3,7 +3,7 @@
   --color-text: #141414;
   --color-muted: #8f8f8f;
   --color-line: rgba(20, 20, 20, 0.08);
-  --sidebar-width: 220px;
+  --sidebar-width: 200px;
   --mobile-header-height: 3.75rem;
   --page-gutter: clamp(1rem, 2vw, 2rem);
   --copy-width: 40rem;
@@ -29,6 +29,10 @@ body {
 }
 
 body.menu-open {
+  overflow: hidden;
+}
+
+body.photo-fullscreen-open {
   overflow: hidden;
 }
 

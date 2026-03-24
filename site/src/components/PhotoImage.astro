@@ -19,18 +19,35 @@ const {
   variant,
   href,
   loading = "lazy",
-  sizes: _sizes = "100vw",
+  sizes = "100vw",
   priority = false,
   imageClass = "",
   linkClass = "",
 } = Astro.props;
+
+const variantWidths = {
+  thumb: Math.min(800, Math.max(photo.width, photo.height)),
+  main: Math.min(2048, Math.max(photo.width, photo.height)),
+  large: Math.min(3200, Math.max(photo.width, photo.height)),
+};
+
+const src = variant === "large" ? photo.urls.main : photo.urls[variant];
+
+const srcSet =
+  variant === "large"
+    ? `${photo.urls.main} ${variantWidths.main}w, ${photo.urls.large} ${variantWidths.large}w`
+    : variant === "main"
+      ? `${photo.urls.thumb} ${variantWidths.thumb}w, ${photo.urls.main} ${variantWidths.main}w`
+      : `${photo.urls.thumb} ${variantWidths.thumb}w`;
 ---
 
 {href ? (
   <a class:list={["photo-image__link", linkClass]} href={href} aria-label={`View ${photo.title}`}>
     <img
       class:list={["photo-image", imageClass]}
-      src={photo.urls[variant]}
+      src={src}
+      srcset={srcSet}
+      sizes={sizes}
       alt={photo.alt}
       width={photo.width}
       height={photo.height}
@@ -42,7 +59,9 @@ const {
 ) : (
   <img
     class:list={["photo-image", imageClass]}
-    src={photo.urls[variant]}
+    src={src}
+    srcset={srcSet}
+    sizes={sizes}
     alt={photo.alt}
     width={photo.width}
     height={photo.height}
